@@ -4,19 +4,23 @@ use std::path::Path;
 use fuse::{FileAttr, FileType, ReplyAttr, ReplyBmap, ReplyCreate, ReplyData,
            ReplyDirectory, ReplyEmpty, ReplyEntry, ReplyLock, ReplyOpen,
            ReplyStatfs, ReplyWrite, ReplyXattr, Request};
-use hyper::Uri;
+use hyper::{Client, Uri, client::HttpConnector};
 use libc::{c_int, ENOENT, ENOSYS};
 use time::Timespec;
 
+use client::RonFSClient;
+
 /// The actual filesystem implementation.
+#[derive(Debug)]
 pub struct Filesystem {
-    base_uri: Uri,
+    client: RonFSClient,
 }
 
 impl Filesystem {
     /// Creates a new filesystem.
-    pub fn new(base_uri: Uri) -> Filesystem {
-        Filesystem { base_uri }
+    pub fn new(client: Client<HttpConnector>, base_uri: Uri) -> Filesystem {
+        let client = RonFSClient::new(client, base_uri);
+        Filesystem { client }
     }
 }
 

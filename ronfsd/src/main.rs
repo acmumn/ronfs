@@ -1,3 +1,4 @@
+extern crate either;
 extern crate failure;
 extern crate iron;
 #[macro_use]
@@ -9,18 +10,19 @@ extern crate stderrlog;
 #[macro_use]
 extern crate structopt;
 
+mod fs;
 mod options;
 mod server;
 
 use failure::Error;
-use iron::{Chain, Iron};
+use iron::{Chain, Handler, Iron, Request};
 use logger::Logger;
 use mount::Mount;
 use persistent::Read;
 use structopt::StructOpt;
 
 use options::Options;
-use server::{root, RootPath, errors::Errors};
+use server::{RootPath, errors::Errors, root::handler as root_handler};
 
 fn main() {
     let options = Options::from_args();
@@ -38,7 +40,17 @@ fn main() {
 fn run(options: Options) -> Result<(), Error> {
     let mut mount = Mount::new();
 
-    let mut chain = Chain::new(mount);
+    let mut chain = Chain::new(move |req: &mut Request| {
+        let is_root = {
+            let url: &iron::url::Url = req.url.as_ref();
+            url.path() == "/"
+        };
+        if is_root {
+            root_handler(req)
+        } else {
+            mount.handle(req)
+        }
+    });
     chain.link(Logger::new(None));
     chain.link_before(Read::<RootPath>::one(options.path));
     chain.link_after(Errors);

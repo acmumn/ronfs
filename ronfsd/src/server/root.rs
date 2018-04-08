@@ -1,6 +1,10 @@
-use iron::{status, error::IronError, prelude::*};
+use iron::{status, error::IronError, headers::ContentType, modifiers::Header,
+           prelude::*};
 
-/// The handler funtion for the `/` path.
 pub fn handler(req: &mut Request) -> Result<Response, IronError> {
-    Ok(Response::with((status::Ok, "Hello World!")))
+    Ok(Response::with((
+        status::Ok,
+        Header(ContentType::html()),
+        include_str!("index.html"),
+    )))
 }

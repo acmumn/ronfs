@@ -4,11 +4,15 @@ version = "0.1.0"
 authors = ["Nathan Ringo <remexre@gmail.com>"]
 
 [dependencies]
+chan-signal = "0.3.1"
 failure = "0.1.1"
 fuse = "0.3.1"
+futures = "0.2.0"
 hyper = "0.11.25"
 libc = "0.2.40"
 log = "0.4.1"
 stderrlog = { git = "https://github.com/remexre/stderrlog-rs.git" }
 structopt = "0.2.6"
 time = "0.1.39"
+tokio-core = "0.1.16"
+users = "0.6.1"
